@@ -1,11 +1,17 @@
-const initialState = {};
+import { GET_TASK_API } from "../contants/ToDoListConst";
 
-export default (state = initialState, { type, payload }) => {
+const initialState = {
+  taskList: [],
+};
+
+const ToDoListReducer = (state = initialState, { type, payload }) => {
   switch (type) {
-    case first:
-      return { ...state, ...payload };
+    case GET_TASK_API:
+      state.taskList = payload;
+      return { ...state };
 
     default:
       return state;
   }
 };
+export default ToDoListReducer;

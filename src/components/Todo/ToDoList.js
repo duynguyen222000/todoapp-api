@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from "react";
 import "./ToDo.scss";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import bg from "../../assets/img/bg.png";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  addTaskApi,
+  deleteTaskApi,
+  doneTaskApi,
+  getTaskListApi,
+  rejectTaskApi,
+} from "../../redux/actions/ToDoListAction";
 const ToDoList = () => {
-  const [taskList, settaskList] = useState([]);
+  // const [taskList, settaskList] = useState([]);
+  const { taskList } = useSelector((state) => state.ToDoListReducer);
+  const dispatch = useDispatch();
   const [value, setValue] = useState("");
   useEffect(() => {
     getTaskList();
   }, []);
   const getTaskList = () => {
-    let promise = axios.get("http://svcy.myclass.vn/api/ToDoList/GetAllTask");
-    promise.then((res) => {
-      settaskList(res.data);
-    });
+    dispatch(getTaskListApi());
   };
   const addTask = () => {
-    console.log(taskList);
-    console.log(value);
-    console.log(taskList.indexOf(value));
     if (
       taskList.findIndex((item) => item.taskName === value) !== -1 ||
       value.trim() === ""
@@ -35,68 +37,18 @@ const ToDoList = () => {
       });
       return;
     } else {
-      axios
-        .post("http://svcy.myclass.vn/api/ToDoList/AddTask", {
-          taskName: value,
-        })
-        .then((res) => {
-          if (res.data) {
-            toast.success("Add task is success...", {
-              position: "top-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-            });
-          }
-          setValue("");
-          return settaskList([...taskList, res.data]);
-        });
+      dispatch(addTaskApi(value));
     }
   };
   const handleDeleteTask = (taskName) => {
     console.log(taskName);
-    axios
-      .delete(
-        `http://svcy.myclass.vn/api/ToDoList/deleteTask?taskName=${taskName}`
-      )
-      .then((res) => {
-        toast.error(`Task ${taskName} deleted`, {
-          position: "top-right",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        getTaskList();
-      });
+    dispatch(deleteTaskApi(taskName));
   };
   const handleDoneTask = (taskName) => {
-    axios
-      .put(`http://svcy.myclass.vn/api/ToDoList/doneTask?taskName=${taskName}`)
-      .then((res) => {
-        toast.success(`Done task ${taskName}`, {
-          position: "top-right",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        getTaskList();
-      });
+    dispatch(doneTaskApi(taskName));
   };
   const handleRejectTask = (taskName) => {
-    axios
-      .put(
-        `http://svcy.myclass.vn/api/ToDoList/rejectTask?taskName=${taskName}`
-      )
-      .then((res) => getTaskList());
+    dispatch(rejectTaskApi(taskName));
   };
   const renderTaskList = () => {
     return taskList
@@ -150,8 +102,8 @@ const ToDoList = () => {
                 }}
                 className="complete"
               >
-                <i className="far fa-check-circle" />
-                <i className="fas fa-check-circle" />
+                <i className="far fa-undo" />
+                <i className="fas fa-undo" />
               </button>
             </div>
           </li>
